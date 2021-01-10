@@ -51,7 +51,8 @@ limitations under the License.
     </declare-styleable>
 
     <declare-styleable name="TextRoundCornerProgressBar">
-        <attr name="rcTextProgressColor" format="color" />
+        <attr name="rcTextProgressInsideColor" format="color" />
+        <attr name="rcTextProgressOutsideColor" format="color" />
         <attr name="rcTextProgressSize" format="dimension" />
         <attr name="rcTextProgressMargin" format="dimension" />
         <attr name="rcTextProgress" format="string" />

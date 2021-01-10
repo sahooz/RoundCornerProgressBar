@@ -72,7 +72,7 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
     }
 
     private TextView tvProgress;
-    private int colorTextProgress;
+    private int[] colorsTextProgress;
     private int textProgressSize;
     private int textProgressMargin;
     private String textProgress;
@@ -97,7 +97,9 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
     protected void initStyleable(@NonNull Context context, @NonNull AttributeSet attrs) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.TextRoundCornerProgressBar);
 
-        colorTextProgress = typedArray.getColor(R.styleable.TextRoundCornerProgressBar_rcTextProgressColor, Color.WHITE);
+        int insideColor = typedArray.getColor(R.styleable.TextRoundCornerProgressBar_rcTextProgressInsideColor, Color.WHITE);
+        int outsideColor = typedArray.getColor(R.styleable.TextRoundCornerProgressBar_rcTextProgressOutsideColor, Color.WHITE);
+        colorsTextProgress = new int[]{ insideColor, outsideColor };
 
         textProgressSize = (int) typedArray.getDimension(R.styleable.TextRoundCornerProgressBar_rcTextProgressSize, dp2px(DEFAULT_TEXT_SIZE));
         textProgressMargin = (int) typedArray.getDimension(R.styleable.TextRoundCornerProgressBar_rcTextProgressMargin, dp2px(DEFAULT_TEXT_MARGIN));
@@ -167,7 +169,30 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
     }
 
     private void drawTextProgressColor() {
-        tvProgress.setTextColor(colorTextProgress);
+        boolean inside = isTextInsideProgress();
+        int textColor = inside ? colorsTextProgress[0] : colorsTextProgress[1];
+        tvProgress.setTextColor(textColor);
+    }
+
+    private boolean isTextInsideProgress() {
+        boolean inside;
+        int textProgressWidth = tvProgress.getMeasuredWidth() + (getTextProgressMargin() * 2);
+        float ratio = getMax() / getProgress();
+        int progressWidth = (int) ((getLayoutWidth() - (getPadding() * 2)) / ratio);
+        if (textPositionPriority == PRIORITY_OUTSIDE) {
+            if (getLayoutWidth() - progressWidth > textProgressWidth) {
+                inside = false;
+            } else {
+                inside = true;
+            }
+        } else {
+            if (textProgressWidth + textProgressMargin > progressWidth) {
+                inside = false;
+            } else {
+                inside = true;
+            }
+        }
+        return inside;
     }
 
     private void drawTextProgressSize() {
@@ -198,6 +223,8 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
                 alignTextProgressInsideProgress();
             }
         }
+
+        drawTextProgressColor();
     }
 
     private void clearTextProgressAlign() {
@@ -300,12 +327,13 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
         drawTextProgressPosition();
     }
 
-    public int getTextProgressColor() {
-        return colorTextProgress;
+    public int[] getTextProgressColors() {
+        return colorsTextProgress;
     }
 
-    public void setTextProgressColor(@ColorInt int color) {
-        this.colorTextProgress = color;
+    public void setTextProgressColors(@ColorInt int insideColor, @ColorInt int outsideColor) {
+        this.colorsTextProgress[0] = insideColor;
+        this.colorsTextProgress[1] = outsideColor;
         drawTextProgressColor();
     }
 
@@ -370,7 +398,7 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
 
-        ss.colorTextProgress = this.colorTextProgress;
+        ss.colorsTextProgress = this.colorsTextProgress;
         ss.textProgressSize = this.textProgressSize;
         ss.textProgressMargin = this.textProgressMargin;
 
@@ -392,7 +420,7 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
 
-        this.colorTextProgress = ss.colorTextProgress;
+        this.colorsTextProgress = ss.colorsTextProgress;
         this.textProgressSize = ss.textProgressSize;
         this.textProgressMargin = ss.textProgressMargin;
 
@@ -404,7 +432,7 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
     }
 
     protected static class SavedState extends AbsSavedState {
-        int colorTextProgress;
+        int[] colorsTextProgress;
         int textProgressSize;
         int textProgressMargin;
 
@@ -425,7 +453,8 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
         protected SavedState(@NonNull Parcel in, @Nullable ClassLoader loader) {
             super(in, loader);
 
-            this.colorTextProgress = in.readInt();
+            this.colorsTextProgress = new int[2];
+            in.readIntArray(this.colorsTextProgress);
             this.textProgressSize = in.readInt();
             this.textProgressMargin = in.readInt();
 
@@ -440,7 +469,7 @@ public class TextRoundCornerProgressBar extends AnimatedRoundCornerProgressBar i
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
 
-            out.writeInt(this.colorTextProgress);
+            out.writeIntArray(this.colorsTextProgress);
             out.writeInt(this.textProgressSize);
             out.writeInt(this.textProgressMargin);
 

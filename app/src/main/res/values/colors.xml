@@ -15,6 +15,7 @@
     <color name="sample_progress_gradient_start">#D32F2F</color>
     <color name="sample_progress_gradient_end">#E57373</color>
     <color name="sample_progress_text_color">#222222</color>
+    <color name="sample_progress_text_inside_color">#448844</color>
 
     <array name="sample_progress_gradient">
         <item>@color/sample_progress_gradient_start</item>
